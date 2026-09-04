@@ -19,7 +19,20 @@ if not _secret_key:
     _secret_key = 'django-insecure-dev-only-key-do-not-use-in-production'
 SECRET_KEY = _secret_key
 
-ALLOWED_HOSTS = [host.strip() for host in os.environ.get('DJANGO_ALLOWED_HOSTS', '*').split(',') if host.strip()]
+_allowed_hosts_env = os.environ.get('DJANGO_ALLOWED_HOSTS', '*')
+ALLOWED_HOSTS = [host.strip() for host in _allowed_hosts_env.split(',') if host.strip()]
+
+# Automatically ensure deployment host and base URL are permitted
+if '*' not in ALLOWED_HOSTS:
+    for default_host in ['188.121.124.135', 'localhost', '127.0.0.1']:
+        if default_host not in ALLOWED_HOSTS:
+            ALLOWED_HOSTS.append(default_host)
+    _base_url_env = os.environ.get('SHORTENER_BASE_URL', '')
+    if _base_url_env:
+        from urllib.parse import urlparse
+        _parsed_host = urlparse(_base_url_env).hostname
+        if _parsed_host and _parsed_host not in ALLOWED_HOSTS:
+            ALLOWED_HOSTS.append(_parsed_host)
 
 _csrf_origins = os.environ.get('DJANGO_CSRF_TRUSTED_ORIGINS', '')
 if _csrf_origins:
