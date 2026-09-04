@@ -257,3 +257,20 @@ class DjangoRestFrameworkTestCase(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_405_METHOD_NOT_ALLOWED)
         self.assertIn('text/html', response['Content-Type'])
 
+    def test_dynamic_base_url_resolution(self):
+        """Test that get_service_base_url uses incoming request origin when accessing from external host."""
+        from shortener.utils import get_service_base_url
+        from django.test import RequestFactory
+
+        rf = RequestFactory()
+        req = rf.get('/', HTTP_HOST='188.121.124.135:9000')
+
+        # When settings.BASE_URL is localhost, but request is from server IP, prefer request host
+        with self.settings(BASE_URL='http://localhost:9000'):
+            self.assertEqual(get_service_base_url(req), 'http://188.121.124.135:9000')
+
+        # When settings.BASE_URL is empty, prefer request host
+        with self.settings(BASE_URL=''):
+            self.assertEqual(get_service_base_url(req), 'http://188.121.124.135:9000')
+
+

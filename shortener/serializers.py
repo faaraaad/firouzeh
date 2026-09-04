@@ -5,7 +5,7 @@ from django.conf import settings
 from django.core.exceptions import ValidationError as DjangoValidationError
 from rest_framework import serializers
 from .models import ShortenedURL
-from .utils import normalize_and_validate_url
+from .utils import normalize_and_validate_url, get_service_base_url
 
 
 class ShortenURLRequestSerializer(serializers.Serializer):
@@ -54,9 +54,7 @@ class ShortenedURLSerializer(serializers.ModelSerializer):
 
     def get_short_url(self, obj) -> str:
         request = self.context.get('request')
-        base_url = getattr(settings, 'BASE_URL', '')
-        if not base_url and request:
-            base_url = request.build_absolute_uri('/')[:-1]
+        base_url = get_service_base_url(request)
         return f"{base_url}/{obj.short_code}"
 
 
@@ -85,7 +83,5 @@ class URLStatsResponseSerializer(serializers.ModelSerializer):
 
     def get_short_url(self, obj) -> str:
         request = self.context.get('request')
-        base_url = getattr(settings, 'BASE_URL', '')
-        if not base_url and request:
-            base_url = request.build_absolute_uri('/')[:-1]
+        base_url = get_service_base_url(request)
         return f"{base_url}/{obj.short_code}"

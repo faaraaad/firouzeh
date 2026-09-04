@@ -19,7 +19,23 @@ if not _secret_key:
     _secret_key = 'django-insecure-dev-only-key-do-not-use-in-production'
 SECRET_KEY = _secret_key
 
-ALLOWED_HOSTS = os.environ.get('DJANGO_ALLOWED_HOSTS', '*').split(',')
+_allowed_hosts_env = os.environ.get('DJANGO_ALLOWED_HOSTS', '*')
+ALLOWED_HOSTS = [host.strip() for host in _allowed_hosts_env.split(',') if host.strip()]
+
+# If a custom public base URL is defined, ensure its hostname is allowed
+_base_url_env = os.environ.get('SHORTENER_BASE_URL', '')
+if _base_url_env and '*' not in ALLOWED_HOSTS:
+    from urllib.parse import urlparse
+    _parsed_host = urlparse(_base_url_env).hostname
+    if _parsed_host and _parsed_host not in ALLOWED_HOSTS:
+        ALLOWED_HOSTS.append(_parsed_host)
+
+# CSRF Trusted Origins for web UI form submissions across hosts/domains
+_csrf_origins = os.environ.get('DJANGO_CSRF_TRUSTED_ORIGINS', '')
+if _csrf_origins:
+    CSRF_TRUSTED_ORIGINS = [origin.strip() for origin in _csrf_origins.split(',') if origin.strip()]
+elif _base_url_env:
+    CSRF_TRUSTED_ORIGINS = [_base_url_env.rstrip('/')]
 
 INSTALLED_APPS = [
     'django.contrib.admin',

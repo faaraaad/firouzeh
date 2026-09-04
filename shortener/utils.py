@@ -58,3 +58,25 @@ def generate_short_code(length: int = MAX_CODE_LENGTH) -> str:
     Generate a secure, random Base62 short code of specified `length` characters (default 5).
     """
     return ''.join(secrets.choice(BASE62_ALPHABET) for _ in range(length))
+
+
+def get_service_base_url(request=None) -> str:
+    """
+    Resolve the base URL for building short URLs.
+    - If request is provided, automatically prefer the client's actual host/origin
+      if settings.BASE_URL is unset, or if settings.BASE_URL is 'localhost'/'127.0.0.1'
+      while client is accessing from an external IP/domain (e.g. remote server).
+    - Otherwise fall back to settings.BASE_URL or request origin.
+    """
+    base_url = getattr(settings, 'BASE_URL', '').strip().rstrip('/')
+    if request:
+        current_origin = request.build_absolute_uri('/')[:-1]
+        if not base_url:
+            return current_origin
+        if 'localhost' in base_url or '127.0.0.1' in base_url:
+            req_host = request.get_host()
+            if req_host and 'localhost' not in req_host and '127.0.0.1' not in req_host:
+                return current_origin
+        return base_url
+    return base_url
+
