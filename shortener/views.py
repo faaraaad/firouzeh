@@ -13,7 +13,7 @@ from .serializers import (
     ShortenURLRequestSerializer,
     URLStatsResponseSerializer,
 )
-from .utils import MAX_CODE_LENGTH
+from .utils import MAX_CODE_LENGTH, get_service_base_url
 
 
 class ShortenAPIView(APIView):
@@ -53,7 +53,7 @@ class ShortenAPIView(APIView):
             }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
         # Build full short URL
-        base_url = getattr(settings, 'BASE_URL', '') or request.build_absolute_uri('/')[:-1]
+        base_url = get_service_base_url(request)
         full_short_url = f"{base_url}/{short_obj.short_code}"
 
         response_payload = {
