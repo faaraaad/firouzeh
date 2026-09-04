@@ -1,4 +1,4 @@
-# SnipLink &mdash; High-Performance Django URL Shortener
+# Firouzeh Shortener &mdash; High-Performance Django URL Shortener
 
 A production-grade, highly reliable URL Shortener service built in Python & Django. It converts long URLs into compact **5-character** Base62 links, features sub-millisecond in-memory caching for rapid redirection, supports idempotent deduplication, and provides comprehensive automated test suites.
 
