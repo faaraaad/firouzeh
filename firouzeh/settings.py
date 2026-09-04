@@ -85,10 +85,17 @@ WSGI_APPLICATION = 'firouzeh.wsgi.application'
 ASGI_APPLICATION = 'firouzeh.asgi.application'
 
 # Database configuration
+_sqlite_data_dir = os.environ.get('SQLITE_DATA_DIR', '')
+if _sqlite_data_dir:
+    _db_path = Path(_sqlite_data_dir) / 'db.sqlite3'
+    _db_path.parent.mkdir(parents=True, exist_ok=True)
+else:
+    _db_path = BASE_DIR / 'db.sqlite3'
+
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'NAME': _db_path,
     }
 }
 

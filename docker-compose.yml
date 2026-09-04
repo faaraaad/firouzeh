@@ -15,8 +15,9 @@ services:
     ports:
       - "9000:9000"
     volumes:
-      - ./db.sqlite3:/app/db.sqlite3
+      - sqlite_data:/app/data
     environment:
+      SQLITE_DATA_DIR: /app/data
       DJANGO_SECRET_KEY: ${DJANGO_SECRET_KEY}
       DJANGO_DEBUG: ${DJANGO_DEBUG:-False}
       DJANGO_ALLOWED_HOSTS: ${DJANGO_ALLOWED_HOSTS:-*}
@@ -27,3 +28,6 @@ services:
       redis:
         condition: service_healthy
     restart: unless-stopped
+
+volumes:
+  sqlite_data:
