@@ -19,7 +19,13 @@ if not _secret_key:
     _secret_key = 'django-insecure-dev-only-key-do-not-use-in-production'
 SECRET_KEY = _secret_key
 
-ALLOWED_HOSTS = os.environ.get('DJANGO_ALLOWED_HOSTS', '*').split(',')
+ALLOWED_HOSTS = [host.strip() for host in os.environ.get('DJANGO_ALLOWED_HOSTS', '*').split(',') if host.strip()]
+
+_csrf_origins = os.environ.get('DJANGO_CSRF_TRUSTED_ORIGINS', '')
+if _csrf_origins:
+    CSRF_TRUSTED_ORIGINS = [origin.strip() for origin in _csrf_origins.split(',') if origin.strip()]
+elif os.environ.get('SHORTENER_BASE_URL', ''):
+    CSRF_TRUSTED_ORIGINS = [os.environ.get('SHORTENER_BASE_URL', '').rstrip('/')]
 
 INSTALLED_APPS = [
     'django.contrib.admin',
