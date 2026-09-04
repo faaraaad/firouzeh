@@ -1,0 +1,26 @@
+version: '3.9'
+
+services:
+  redis:
+    image: redis:7-alpine
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  web:
+    build: .
+    ports:
+      - "9000:9000"
+    environment:
+      DJANGO_SECRET_KEY: ${DJANGO_SECRET_KEY}
+      DJANGO_DEBUG: ${DJANGO_DEBUG:-False}
+      DJANGO_ALLOWED_HOSTS: ${DJANGO_ALLOWED_HOSTS:-localhost,127.0.0.1}
+      REDIS_URL: redis://redis:6379/0
+      SHORTENER_BASE_URL: ${SHORTENER_BASE_URL:-http://localhost:9000}
+    depends_on:
+      redis:
+        condition: service_healthy
+    restart: unless-stopped
