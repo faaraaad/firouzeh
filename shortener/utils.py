@@ -55,7 +55,7 @@ def normalize_and_validate_url(raw_url: str) -> str:
 
 def generate_short_code(length: int = MAX_CODE_LENGTH) -> str:
     """
-    Generate a secure, random Base62 short code of specified `length` characters (default 5).
+    Generate a secure, random alphanumeric short code from [0-9a-zA-Z] of specified `length` characters (default 5).
     """
     return ''.join(secrets.choice(BASE62_ALPHABET) for _ in range(length))
 
